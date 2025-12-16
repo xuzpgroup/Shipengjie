@@ -1,0 +1,192 @@
+LAMMPS (2 Aug 2023 - Update 1)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+Loaded 1 plugins from /data/home/spj/deepmd-kit-new/lib/deepmd_lmp
+units               metal
+atom_style          atomic
+boundary            p p p
+processors          * * 1
+read_data           atom_edge.data
+Reading data file ...
+  orthogonal box = (0 0 0) to (1208.3126 515.46321 200)
+  4 by 1 by 1 MPI processor grid
+  reading atoms ...
+  290304 atoms
+  read_data CPU = 0.595 seconds
+mass                2 15.999
+mass                1 28.085
+neighbor            0.3 bin
+neigh_modify        delay 0 every 100 check yes
+
+pair_style          deepmd frozen_9.pb  #O Si
+Summary of lammps deepmd module ...
+  >>> Info of deepmd-kit:
+  installed to:       /data/home/spj/deepmd-kit-new
+  source:             v2.2.7-dirty
+  source branch:       HEAD
+  source commit:      839f4fe7
+  source commit at:   2023-10-27 21:10:24 +0800
+  surpport model ver.:1.1 
+  build variant:      cuda
+  build with tf inc:  /data/home/spj/deepmd-kit-new/include;/data/home/spj/deepmd-kit-new/include
+  build with tf lib:  /data/home/spj/deepmd-kit-new/lib/libtensorflow_cc.so
+  set tf intra_op_parallelism_threads: 0
+  set tf inter_op_parallelism_threads: 0
+  >>> Info of lammps module:
+  use deepmd-kit at:  /data/home/spj/deepmd-kit-newpair_coeff          * * Si O
+
+thermo_style        custom step temp pe lx ly xy  pxx pyy pxy
+thermo              100
+
+fix m1u all recenter INIT INIT INIT
+fix 2 all npt temp 1 1 0.1 y 0 0 10
+run 1000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- USER-DEEPMD package:
+
+@article{Wang_ComputPhysCommun_2018_v228_p178,
+  author = {Wang, Han and Zhang, Linfeng and Han, Jiequn and E, Weinan},
+  doi = {10.1016/j.cpc.2018.03.016},
+  url = {https://doi.org/10.1016/j.cpc.2018.03.016},
+  year = 2018,
+  month = {jul},
+  publisher = {Elsevier {BV}},
+  volume = 228,
+  journal = {Comput. Phys. Commun.},
+  title = {{DeePMD-kit: A deep learning package for many-body potential energy representation and molecular dynamics}},
+  pages = {178--184}
+}
+@misc{Zeng_JChemPhys_2023_v159_p054801,
+  title  = {{DeePMD-kit v2: A software package for deep potential models}},
+  author =   {Jinzhe Zeng and Duo Zhang and Denghui Lu and Pinghui Mo and Zeyu Li
+         and Yixiao Chen and Mari{\'a}n Rynik and Li'ang Huang and Ziyao Li and 
+         Shaochen Shi and Yingze Wang and Haotian Ye and Ping Tuo and Jiabin
+         Yang and Ye Ding and Yifan Li and Davide Tisi and Qiyu Zeng and Han 
+         Bao and Yu Xia and Jiameng Huang and Koki Muraoka and Yibo Wang and 
+         Junhan Chang and Fengbo Yuan and Sigbj{\o}rn L{\o}land Bore and Chun
+         Cai and Yinnian Lin and Bo Wang and Jiayan Xu and Jia-Xin Zhu and 
+         Chenxing Luo and Yuzhi Zhang and Rhys E A Goodall and Wenshuo Liang
+         and Anurag Kumar Singh and Sikai Yao and Jingchao Zhang and Renata
+         Wentzcovitch and Jiequn Han and Jie Liu and Weile Jia and Darrin M
+         York and Weinan E and Roberto Car and Linfeng Zhang and Han Wang},
+  journal =  {J. Chem. Phys.},
+  volume =   159,
+  issue =    5,  
+  year =    2023,
+  pages  =   054801,
+  doi =      {10.1063/5.0155600},
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+WARNING: Fix recenter should come after all other integration fixes (src/fix_recenter.cpp:133)
+Neighbor list info ...
+  update: every = 100 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 9.3
+  ghost atom cutoff = 9.3
+  binsize = 4.65, bins = 260 111 44
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair deepmd, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 47.26 | 50.54 | 53.82 Mbytes
+   Step          Temp          PotEng           Lx             Ly             Xy            Pxx            Pyy            Pxy      
+         0   0             -99270789       1208.3126      515.46321      0              7.9766597      8.2573751     -21.869909    
+       100   2.0129843     -99270866       1208.3126      515.45609      0             -2.9925452     -1.6582595     -21.991678    
+       200   3.4645464     -99270941       1208.3126      515.4978       0             -2.4101777     -3.2463613     -21.668811    
+       300   3.4337859     -99270973       1208.3126      515.50639      0             -5.0058693     -4.9698064     -21.633525    
+       400   3.2795397     -99271007       1208.3126      515.45668      0              0.075133093    0.88016148    -21.532657    
+       500   2.9575913     -99271033       1208.3126      515.42108      0             -1.2435286      2.8454649     -21.01311     
+       600   2.5137608     -99271049       1208.3126      515.43182      0             -1.2323038      2.5532531     -20.299116    
+       700   2.2983745     -99271070       1208.3126      515.46912      0             -3.4502335     -2.6382862     -20.627238    
+       800   2.0550229     -99271085       1208.3126      515.4534       0             -1.4647407     -0.22423467    -20.25544     
+       900   1.8226844     -99271097       1208.3126      515.46045      0             -0.48802271     0.17055154    -20.020248    
+      1000   1.5908758     -99271106       1208.3126      515.47973      0              1.0698257      1.6062612     -19.84265     
+Loop time of 135.527 on 4 procs for 1000 steps with 290304 atoms
+
+Performance: 0.638 ns/day, 37.647 hours/ns, 7.379 timesteps/s, 2.142 Matom-step/s
+81.9% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 109.03     | 116.24     | 123.41     |  61.8 | 85.77
+Neigh   | 1.1799     | 1.3954     | 1.5993     |  14.8 |  1.03
+Comm    | 2.6444     | 8.8911     | 14.723     | 193.9 |  6.56
+Output  | 0.0091846  | 0.0093364  | 0.0096088  |   0.2 |  0.01
+Modify  | 7.6777     | 8.757      | 10.283     |  37.4 |  6.46
+Other   |            | 0.2363     |            |       |  0.17
+
+Nlocal:          72576 ave       76490 max       68670 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Nghost:           6299 ave        7661 max        4980 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Neighs:              0 ave           0 max           0 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+FullNghs:  8.63192e+06 ave 9.13774e+06 max 8.12743e+06 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 34527666
+Ave neighs/atom = 118.93624
+Neighbor list builds = 10
+Dangerous builds = 10
+unfix 2
+
+fix 1 all box/relax y 0
+minimize 0.0 1.0e-8 10000 100000
+Switching to 'neigh_modify every 1 delay 0 check yes' setting during minimization
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+WARNING: Energy due to 3 extra global DOFs will be included in minimizer energies
+ (src/min.cpp:225)
+Per MPI rank memory allocation (min/avg/max) = 52.89 | 56.72 | 60.57 Mbytes
+   Step          Temp          PotEng           Lx             Ly             Xy            Pxx            Pyy            Pxy      
+      1000   1.5908758     -99271106       1208.3126      515.47973      0              1.0698245      1.6062632     -19.84265     
+      1031   1.5908758     -99271141       1208.3126      515.48514      0              1.340123       0.48555224    -20.041979    
+Loop time of 26.0618 on 4 procs for 31 steps with 290304 atoms
+
+81.8% CPU use with 4 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -99271105.8193207  -99271141.2623138  -99271141.2623138
+  Force two-norm initial, final = 91.341323 15.450681
+  Force max component initial, final = 79.907311 7.2295245
+  Final line search alpha, max atom move = 2.6384004e-11 1.907438e-10
+  Iterations, force evaluations = 31 188
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 21.287     | 22.646     | 24.028     |  26.3 | 86.89
+Neigh   | 0.65155    | 0.69008    | 0.72441    |   3.6 |  2.65
+Comm    | 0.39193    | 1.5111     | 2.5632     |  83.9 |  5.80
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.215      |            |       |  4.66
+
+Nlocal:          72576 ave       76490 max       68670 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Nghost:           6299 ave        7661 max        4980 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Neighs:              0 ave           0 max           0 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+FullNghs:   8.6314e+06 ave 9.13723e+06 max   8.127e+06 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 34525610
+Ave neighs/atom = 118.92916
+Neighbor list builds = 5
+Dangerous builds = 0
+
+
+write_dump all atom atom_edge_opt.lammpstrj
+Total wall time: 0:02:48
