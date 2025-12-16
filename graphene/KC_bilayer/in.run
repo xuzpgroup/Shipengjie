@@ -1,0 +1,36 @@
+ processors    * * 1
+ units         metal
+ dimension     3
+ boundary      p p p
+
+ atom_style      full
+
+ read_data    atom_1.02.data
+# read_restart mini.restart
+# pair_style hybrid/overlay rebo kolmogorov/crespi/full 16.0 1
+# pair_coeff     * *         rebo   ../../../CH.rebo  C C
+# pair_coeff     * *         kolmogorov/crespi/full ../../../CH_taper.KC C C
+ mass * 12.0
+
+ #pair_style hybrid/overlay deepmd frozen_model.pb deepmd frozen_model.pb lj/cut 12.0
+ #pair_coeff     * *         deepmd 1 NULL C
+ #pair_coeff     * *         deepmd 2 C NULL
+ #pair_coeff     1 2         lj/cut 0.2843732471143 3.4
+ 
+ pair_style hybrid/overlay deepmd frozen_model.pb deepmd frozen_model.pb kolmogorov/crespi/full 16.0 1
+ pair_coeff     * *         deepmd 1 NULL C
+ pair_coeff     * *         deepmd 2 C NULL
+ pair_coeff     * *         kolmogorov/crespi/full CH_taper.KC C C
+
+ group  l1 type 1
+ group  l2 type 2
+
+ thermo     10
+ thermo_style custom step pe pxx pyy pzz lx ly lz
+ variable strain equal 1.03/1.02
+ change_box all y scale ${strain}  remap
+ dump        2 all custom 100 1.03.lammpstrj id type x y z
+ # fix 1 all nvt temp 1 1 1
+ # run 100
+ minimize 0.0 1.0e-8 100000 1000000
+write_restart restart.1.03
