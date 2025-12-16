@@ -1,0 +1,26 @@
+units               metal
+atom_style          atomic
+boundary            p p p
+processors          * * 1
+read_data           atom_edge.data
+mass                2 15.999
+mass                1 28.085
+neighbor            0.3 bin
+neigh_modify        delay 0 every 100 check yes
+
+pair_style          deepmd frozen_9.pb  #O Si
+pair_coeff          * * Si O
+
+thermo_style        custom step temp pe lx ly xy  pxx pyy pxy
+thermo              100
+
+fix m1u all recenter INIT INIT INIT
+fix 2 all npt temp 1 1 0.1 y 0 0 10
+run 1000
+unfix 2
+
+fix 1 all box/relax y 0
+minimize 0.0 1.0e-8 10000 100000
+
+
+write_dump all atom atom_edge_opt.lammpstrj
