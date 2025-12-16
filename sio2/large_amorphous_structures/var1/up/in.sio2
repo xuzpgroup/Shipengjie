@@ -1,0 +1,53 @@
+units               metal
+atom_style          atomic
+boundary            p p p
+processors          * * 1
+read_data           atom_crack_opt.data
+mass                2 15.999
+mass                1 28.085
+neighbor            0.3 bin
+neigh_modify        delay 0 every 100 check yes
+
+pair_style          deepmd frozen_9.pb  #O Si
+pair_coeff          * * Si O
+
+thermo_style        custom step temp pe lx ly xy  pxx pyy pxy
+thermo              100
+
+region 1_up block 0.0 50.0 375 INF INF INF
+group e1u region 1_up
+region 1_down1 block 0.0 50.0 250 375 INF INF
+group e1d1 region 1_down1
+region 1_down2 block 0.0 50.0 125 250 INF INF
+group e1d2 region 1_down2
+region 1_down3 block 0.0 50.0 INIT 125 INF INF
+group e1d3 region 1_down3
+region 2 block 1100 1160  INF INF INF INF
+group e2 region 2
+
+
+change_box all y delta 0 35 x delta 0 -20 remap
+
+velocity all create 0.1 492845 dist gaussian
+fix 1 all nvt temp 0.1 0.1 0.1 # x 0 0 100 y 0 0 100
+run 10000
+# change_box all y delta 0 30 x delta 0 -15 remap
+
+fix m1u e1u recenter NULL NULL INIT
+fix m1d1 e1d1 recenter NULL NULL INIT
+fix m1d2 e1d2 recenter NULL NULL INIT
+fix m1d3 e1d3 recenter NULL NULL INIT
+fix m2 e2 recenter NULL NULL INIT
+
+dump 1 all custom 1000 dump1.lammpstrj id type x y z
+run  20000
+
+velocity all create 0.1 4928459 dist gaussian
+
+run  10000
+
+fix 2 all deform 100 y erate 1e-4 remap x
+
+run 800000
+
+write_dump all custom dump_1.lammpstrj id type x y z vx vy vz
