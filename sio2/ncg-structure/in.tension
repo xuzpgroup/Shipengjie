@@ -1,0 +1,60 @@
+units           metal
+atom_style      full
+
+# 2 is Oxygen
+# 1 is Silicon
+processors      * * 1
+read_data       ncg-structure/out.dp.${i}.data
+mass            2 15.999
+mass            1 28.085
+
+pair_style      deepmd frozen_9.pb  #Si O
+pair_coeff      * * Si O
+
+compute         coord all  coord/atom cutoff  2.201
+variable        uncoordination atom abs(c_coord<2)*(type==2) #+abs(c_coord-4)*(type==2)
+variable        maxforce equal fmax
+compute         uncoord all reduce sum v_uncoordination
+variable        uncoord equal c_uncoord
+variable        sxx equal -pxx
+
+thermo          100
+thermo_style    custom step temp pe fmax press lx ly xy pxx pyy pxy v_uncoord
+
+fix 1 all npt temp 1 1 1 x 0 0 10 y 0 0 10
+run 1000
+unfix 1
+
+fix 1 all box/relax x 0 y 0
+minimize 0.0 1.0e-8 10000 100000
+unfix 1
+
+
+velocity all set 0 0 0 
+reset_timestep 0
+
+variable lx0 equal $(lx)
+variable strain equal (lx-v_lx0)/v_lx0
+thermo_style    custom step temp pe fmax press lx ly xy pxx pyy pxy v_uncoord v_strain
+
+dump myDump all atom 2000 ncg-structure/dump.${i}.lammpstrj
+
+fix ave all ave/time 100 1 100  v_strain  v_sxx file ncg-structure/stress-strain-${i}.profile
+
+fix             HALT all halt 10 v_uncoord > 0  error continue
+fix 1 all deform 100 x erate 5e-4 units box
+fix             lan all langevin 0.0 0.0 0.1 4447
+fix             nve all nve
+run 600000
+unfix           HALT
+
+run 0
+print           "# strain stress " file ncg-structure/bond_break.${i}.dat screen no
+print           "  $(v_strain) $(-pxx)" file ncg-structure/bond_break.${i}.dat screen no
+write_dump      all custom ncg-structure/sio2_3_bondbreak.${i}.dump id type v_uncoordination xu yu zu  modify pad 9 sort id append no format line "%d %d %5.0g %20.20g %20.20g %20.20g"
+
+fix            HALT all halt 10 v_sxx < 10  error continue
+run 600000 upto
+unfix           HALT
+
+
