@@ -1,0 +1,21 @@
+units               metal
+atom_style          atomic
+boundary            p p p
+processors          * * 1
+read_data           atom_crack.data
+mass                1 15.999
+mass                2 28.085
+neighbor            0.3 bin
+neigh_modify        delay 0 every 100 check yes
+
+pair_style          deepmd frozen_9.pb  #O Si
+pair_coeff          * * Si O
+
+thermo_style        custom step temp pe lx ly xy  pxx pyy pxy
+thermo              100
+
+# fix 1 all box/relax y 0
+minimize 0.0 1.0e-8 10000 100000
+
+
+write_dump all atom atom_crack_opt.lammpstrj
