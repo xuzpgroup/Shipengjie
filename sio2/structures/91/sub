@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -J sio2
+#SBATCH -p gnall
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=16
+#SBATCH --gres=gpu:2
+
+
+# source ~/WORK/shipengjie/01-app/lmp_dp/lmp_dp.sh 
+# module load gpu/cuda/v12 
+# which lmp
+
+module load soft/anaconda3/config
+source activate
+conda activate deepmdtest
+
+
+mpirun  -hosts=$SLURM_JOB_NODELIST -np 2 lmp -in in.sio2
+
