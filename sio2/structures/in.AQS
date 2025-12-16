@@ -1,0 +1,131 @@
+# ------------------- INITIALIZATION --------------------------------------
+clear
+variable        strain   equal 0.02
+# print           "cos: ${cos}; sin: ${sin}; sincos: ${sincos}; cos2: ${cos2};"
+
+units 		    metal		# lengths in Angstroms, times in picoseconds
+dimension	    3
+atom_style      atomic
+boundary        p p p
+processors      * * 1
+timestep        1e-3
+neighbor        1 bin
+
+neigh_modify    every 2 delay 10 check yes
+read_data       atom.data
+# change_box      all triclinic
+
+mass            1 15.9994  #O
+mass		    2 28.0855  #Si
+
+group           oxygenatoms   type 1
+group           siliconatoms  type 2
+
+pair_style      deepmd /home/xuzpg/WORK/shipengjie/xuzp_shipengjie/06-siesta/AQS_dataset/frozen_model_compressed.pb  #O Si
+pair_coeff      * * 
+
+compute         peratom all pe/atom
+compute         pe all reduce sum c_peratom
+variable        pe equal c_pe
+
+compute         coord all  coord/atom cutoff  2.016
+variable        maxforce equal fmax
+variable        uncoordination atom abs(c_coord-2)*(type==1) #+abs(c_coord-4)*(type==2)
+
+compute         uncoord all reduce sum v_uncoordination
+variable        uncoord equal c_uncoord
+
+
+thermo          100
+thermo_style    custom step temp v_pe fmax press lx ly xy pxx pyy pxy
+thermo_modify   flush yes lost error
+
+variable        Fconv equal 1e-3      # maximum force for convergence
+
+shell           "rm -f sio2_* bond_break_*"
+
+##### RELAX BOX AND MINIMIZE
+# dump myDump all atom 100 dump.lammpstrj
+min_style       cg
+minimize        0.0 1.0e-4 $(round(1e4)) $(round(1e4))
+
+
+
+
+
+variable        ly0 equal $(ly)
+variable        ly       equal v_ly0*(v_strain+1)
+
+thermo_style    custom step temp v_pe fmax press lx xy ly v_strain v_uncoord pxx pyy pxy
+change_box      all y final 0 $(ly) remap units box
+
+reset_timestep  0
+run 0
+
+write_dump      all custom sio2_1_initial.dump id type v_uncoordination xu yu zu c_peratom modify pad 9 sort id append no format line "%d %d %5.0g %20.20g %20.20g %20.20g %10.10g"
+write_dump      all custom sio2_all.dump id type v_uncoordination xu yu zu c_peratom modify pad 9 sort id append yes format line "%d %d %5.0g %20.20g %20.20g %20.20g %10.10g"
+run 0
+
+# if "$(v_uncoord) > 0" then "print 'UNCOORDINATED ATOMS FOUND AFTER INITIAL RELAXATION. EXITING.'" "jump SELF quit"
+
+########################################################################
+# run aqs
+########################################################################
+
+thermo_style    custom step temp v_pe fmax press lx xy ly v_strain v_uncoord pxx pyy pxy
+thermo_modify   flush yes lost error
+thermo          $(round(1/dt))
+
+fix             lan all langevin 0.0 0.0 1.0 4447
+fix             nve all nve
+
+run 0
+
+variable        disteps equal 0.005               # increment of strain at each aqs step
+variable        peprev equal $(v_pe)              # potential energy of previous aqs step
+
+print           "# step pe strain theta maxforce press lx ly xy pxx pyy pzz pxy pxz pyz" file aqs.dat screen no
+
+#### AQS LOOP
+variable a loop 1 20
+label           aqsloop1
+
+print          "##### AQS STEP ${a}"
+
+velocity        all set 0.0 0.0 0.0
+
+# stretching
+variable        strain   equal $(v_strain+v_disteps)
+change_box      all  y final 0 $(v_ly)  remap
+
+# relaxation
+fix             HALT all halt 1 v_maxforce < ${Fconv}  error continue
+run             $(round(2e6))
+unfix           HALT
+
+if "$(v_maxforce) > ${Fconv}" then "print 'AQS STEP NOT CONVERGED. EXITING.'" "jump SELF quit"
+
+reset_timestep  ${a}
+run             0
+
+print           '$(step) $(v_pe) $(v_strain) $(fmax) $(press) $(lx) $(ly) $(xy) $(pxx) $(pyy) $(pzz) $(pxy) $(pxz) $(pyz)' append aqs.dat screen no
+
+# check for fracture to exit loop
+# variable        pecurr equal $(v_pe)
+# variable        pediff equal $(v_pecurr-v_peprev)
+# if "(${a} > 1) && ((${pediff} < 0) || (${uncoord} >0))" then "jump SELF endloop"
+
+# saving dump if not broken
+write_dump      all custom sio2_2_aqs.dump id type v_uncoordination  xu yu zu c_peratom modify pad 9 sort id append no format line "%d %d %5.0g %20.20g %20.20g %20.20g %10.10g"
+write_dump      all custom sio2_all.dump id type v_uncoordination xu yu zu c_peratom modify pad 9 sort id append yes format line "%d %d %5.0g %20.20g %20.20g %20.20g %10.10g"
+run 0
+
+# variable        peprev equal ${pecurr}
+# variable        prev equal ${a}
+
+next      a
+jump SELF aqsloop1
+
+label endloop
+###END OF AQS LOOP
+# write_dump      all custom sio2_all.dump id type v_uncoordination xu yu zu c_peratom modify pad 9 sort id append yes format line "%d %d %5.0g %20.20g %20.20g %20.20g %10.10g"
