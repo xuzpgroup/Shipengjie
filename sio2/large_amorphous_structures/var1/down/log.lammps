@@ -1,0 +1,144 @@
+LAMMPS (2 Aug 2023)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+Loaded 1 plugins from /home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpu/lib/deepmd_lmp
+units               metal
+atom_style          atomic
+boundary            p p p
+processors          * * 1
+read_data           atom_crack.data
+Reading data file ...
+  orthogonal box = (0 0 0) to (1166.389 505.50343 200)
+  2 by 1 by 1 MPI processor grid
+  reading atoms ...
+  289796 atoms
+  read_data CPU = 0.640 seconds
+mass                1 15.999
+mass                2 28.085
+neighbor            0.3 bin
+neigh_modify        delay 0 every 100 check yes
+
+pair_style          deepmd frozen_9.pb  #O Si
+Summary of lammps deepmd module ...
+  >>> Info of deepmd-kit:
+  installed to:       /home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpu
+  source:             v2.2.3
+  source branch:       HEAD
+  source commit:      53a1078c
+  source commit at:   2023-08-08 11:52:54 +0800
+  surpport model ver.:1.1 
+  build variant:      cuda
+  build with tf inc:  /home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpu/include;/home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpu/include
+  build with tf lib:  /home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpu/lib/libtensorflow_cc.so
+  set tf intra_op_parallelism_threads: 0
+  set tf inter_op_parallelism_threads: 0
+  >>> Info of lammps module:
+  use deepmd-kit at:  /home/xuzpg/WORK/shipengjie/01-app/anaconda3/envs/deepmd_gpupair_coeff          * * Si O
+
+thermo_style        custom step temp pe lx ly xy  pxx pyy pxy
+thermo              100
+
+# fix 1 all box/relax y 0
+minimize 0.0 1.0e-8 10000 100000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- USER-DEEPMD package:
+
+@article{Wang_ComputPhysCommun_2018_v228_p178,
+  author = {Wang, Han and Zhang, Linfeng and Han, Jiequn and E, Weinan},
+  doi = {10.1016/j.cpc.2018.03.016},
+  url = {https://doi.org/10.1016/j.cpc.2018.03.016},
+  year = 2018,
+  month = {jul},
+  publisher = {Elsevier {BV}},
+  volume = 228,
+  journal = {Comput. Phys. Commun.},
+  title = {{DeePMD-kit: A deep learning package for many-body potential energy representation and molecular dynamics}},
+  pages = {178--184}
+}
+@misc{Zeng_JChemPhys_2023_v159_p054801,
+  title  = {{DeePMD-kit v2: A software package for deep potential models}},
+  author =   {Jinzhe Zeng and Duo Zhang and Denghui Lu and Pinghui Mo and Zeyu Li
+         and Yixiao Chen and Mari{\'a}n Rynik and Li'ang Huang and Ziyao Li and 
+         Shaochen Shi and Yingze Wang and Haotian Ye and Ping Tuo and Jiabin
+         Yang and Ye Ding and Yifan Li and Davide Tisi and Qiyu Zeng and Han 
+         Bao and Yu Xia and Jiameng Huang and Koki Muraoka and Yibo Wang and 
+         Junhan Chang and Fengbo Yuan and Sigbj{\o}rn L{\o}land Bore and Chun
+         Cai and Yinnian Lin and Bo Wang and Jiayan Xu and Jia-Xin Zhu and 
+         Chenxing Luo and Yuzhi Zhang and Rhys E A Goodall and Wenshuo Liang
+         and Anurag Kumar Singh and Sikai Yao and Jingchao Zhang and Renata
+         Wentzcovitch and Jiequn Han and Jie Liu and Weile Jia and Darrin M
+         York and Weinan E and Roberto Car and Linfeng Zhang and Han Wang},
+  journal =  {J. Chem. Phys.},
+  volume =   159,
+  issue =    5,  
+  year =    2023,
+  pages  =   054801,
+  doi =      {10.1063/5.0155600},
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Switching to 'neigh_modify every 1 delay 0 check yes' setting during minimization
+Generated 0 of 1 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 9.3
+  ghost atom cutoff = 9.3
+  binsize = 4.65, bins = 251 109 44
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair deepmd, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 112.8 | 113 | 113.2 Mbytes
+   Step          Temp          PotEng           Lx             Ly             Xy            Pxx            Pyy            Pxy      
+         0   0             -99088370       1166.389       505.50343      0              2.9876184      1.1355719      4.9799904    
+       100   0             -99088682       1166.389       505.50343      0              3.0952828      1.1151984      4.9521189    
+       200   0             -99088756       1166.389       505.50343      0              2.5588589      0.34644899     5.4159572    
+       289   0             -99088811       1166.389       505.50343      0              1.6826633      0.23937863     5.4446259    
+Loop time of 262.568 on 2 procs for 289 steps with 289796 atoms
+
+83.1% CPU use with 2 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -99088369.6136475  -99088810.5307465  -99088810.5307465
+  Force two-norm initial, final = 44.837058 40.400138
+  Force max component initial, final = 7.7605515 24.757494
+  Final line search alpha, max atom move = 7.5235615e-12 1.8626453e-10
+  Iterations, force evaluations = 289 601
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 134.24     | 179.37     | 224.5      | 337.0 | 68.31
+Neigh   | 34.15      | 34.255     | 34.359     |   1.8 | 13.05
+Comm    | 0.51741    | 45.571     | 90.626     | 667.4 | 17.36
+Output  | 0.0051599  | 0.0051805  | 0.0052011  |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 3.37       |            |       |  1.28
+
+Nlocal:         144898 ave      145174 max      144622 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Nghost:           7754 ave        7782 max        7726 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+Neighs:              0 ave           0 max           0 min
+Histogram: 2 0 0 0 0 0 0 0 0 0
+FullNghs:  1.82387e+07 ave 1.82964e+07 max 1.81811e+07 min
+Histogram: 1 0 0 0 0 0 0 0 0 1
+
+Total # of neighbors = 36477480
+Ave neighs/atom = 125.87296
+Neighbor list builds = 131
+Dangerous builds = 0
+
+
+write_dump all atom atom_crack_opt.lammpstrj
+Total wall time: 0:04:28
