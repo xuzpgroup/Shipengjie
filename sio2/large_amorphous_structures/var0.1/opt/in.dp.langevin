@@ -1,0 +1,70 @@
+# SHIK Silica Sample Code
+
+units           metal
+atom_style      full
+
+# 2 is Oxygen
+# 1 is Silicon
+processors      * * 1
+read_data       out.tersoff.$i.data
+mass            2 15.999
+mass            1 28.085
+
+group           gsi type 1 1
+group           go type 2 2
+
+compute         coord all  coord/atom cutoff  2.201
+variable        uncoordination atom abs(c_coord<2)*(type==2) #+abs(c_coord-4)*(type==2)
+variable        maxforce equal fmax
+compute         uncoord all reduce sum v_uncoordination
+variable        uncoord equal c_uncoord
+
+# variable       t equal 330
+# velocity       all create $t 87287
+thermo          100
+thermo_style    custom step temp pe fmax press lx ly xy pxx pyy pxy v_uncoord
+
+#Pair Potentials
+pair_style      deepmd frozen_9.pb  #Si O
+pair_coeff      * * Si O
+
+dump 1 all custom 1000 dump.lammpstrj id type element x y z c_coord
+dump_modify   1 sort id element Si O
+
+
+# fix             lan all langevin 0.0 0.0 0.001 4447
+# fix             nve all nve
+fix               lan all npt temp 1 1 0.1 x 0 0 10 y 0 0 10
+
+variable        Fconv equal 1e-3
+fix             HALT all halt 1 v_maxforce < ${Fconv}  error continue
+run            2000
+unfix          HALT
+unfix          lan
+# unfix          nve
+velocity        all set 0.0 0.0 0.0
+
+#variable a loop 1 10000
+#label           opt
+
+#print          "##### OPT STEP ${a}"
+
+fix 1 all box/relax x 0 y 0
+min_modify dmax 0.1
+minimize 0.0 1.0e-2 10000 100000
+unfix 1
+
+fix             lan all langevin 0 0 0.01 4447
+fix             nve all nve
+fix             HALT all halt 1 v_maxforce < ${Fconv}  error continue
+run            5000
+unfix          HALT
+unfix          lan
+unfix          nve
+
+run            0
+velocity        all set 0.0 0.0 0.0
+
+#if "$(v_maxforce) > ${Fconv}" then "jump SELF opt"
+if "$(v_uncoord) != 0" then 'shell           touch $i_failed' else "write_dump all atom out.dp.0.3.$i.lammpstrj"
+#write_data out.dp.0.3.$i.data
