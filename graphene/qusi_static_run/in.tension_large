@@ -1,0 +1,20 @@
+units               metal
+atom_style          atomic
+boundary	    p p p
+processors          * * 1
+read_data           data_tension.lmp
+mass 		    * 12.0
+neighbor            0.3 bin
+neigh_modify        delay 0 every 1 check yes
+
+pair_style          deepmd ../frozen_model.pb
+pair_coeff          * * 
+
+thermo_style        custom step temp pe etotal lx ly lz pxx pyy pxy
+thermo              100
+
+# fix 1 all box/relax  y 0.0
+minimize 0.0 1.0e-4 10000 100000
+# unfix 1
+write_dump all atom dump_tension.atom
+
